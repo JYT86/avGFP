@@ -29,7 +29,8 @@ def predict(
         cls_model: ItPred4Classification, 
         reg_model: BaseEstimator,
         structure: bool = False,
-        after_training: bool = False
+        after_training: bool = False,
+        pred_energy: bool = False,
     ):
 
     dataset = ESMLabelDataset(None, [seq], [0.])
@@ -47,15 +48,18 @@ def predict(
     preds = torch.cat(preds).numpy()
     preds = (preds > 0.5).astype(int)
     if preds[0] == 1:
-        logger.info(f'This variant is H-Class.')
+        logger.debug(f'This variant is H-Class.')
         X, _ = ml_encode([seq], [0], 'feature', None, structure, after_training)
         
         brightness = reg_model.predict(X.reshape(X.shape[0], -1))
-        energy = np.array([compute_energy_with_rosetta(seq) for _ in range(5)])
+        if pred_energy:
+            energy = np.array([compute_energy_with_rosetta(seq) for _ in range(5)]).mean()
+        else:
+            energy = 0
         return {
             'Sequence': seq,
             'Brightness': brightness.item(),
-            'Energy': energy.mean(),
+            'Energy': energy,
         }
     
     else:

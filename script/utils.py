@@ -12,7 +12,7 @@ from pyrosetta import pose_from_sequence, get_fa_scorefxn
 
 import subprocess
 
-pyrosetta.init()
+pyrosetta.init("-mute all")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 esm_model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm2_t6_8M_UR50D")

@@ -12,6 +12,7 @@ from model import ItPred4Classification, ItPredConfig
 import argparse
 import pickle
 import json
+import logging
 
 class ProbTable:
     def __init__(self, residues_list:list[str], init_probs:str="uni"):
@@ -54,6 +55,13 @@ class ProbTable:
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    console_handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
     parser = argparse.ArgumentParser(description="Perform EDA.")
     parser.add_argument('--structure', '-s', action='store_true', help="IF take account of structural feature")
@@ -83,25 +91,25 @@ if __name__ == '__main__':
         action = action.split(':')
         residues = [int(act[1:-1]) for act in action]
 
-        print(residues)
+        logger.info(f'residues: {residues}')
         pt = ProbTable(residues)
         for i in range(10):
-            seqs = pt.sampling(1000)
+            seqs = pt.sampling(100)
             preds = [predict(seq, cls_model, reg_model, args.structure, True) for seq in seqs]
-            pred_brightness = np.array([pred['brightness'] for pred in preds])
+            pred_brightness = np.array([pred['Brightness'] for pred in preds])
             winner_ids = np.argsort(pred_brightness)[-10:]
             winners = [seqs[i] for i in winner_ids]
 
             pt.update(winners)
-            winner_scores = preds[winner_ids]
+            winner_scores = pred_brightness[winner_ids]
 
-            print(f'mean: {winner_scores.mean()}')
-            print(f' std: {winner_scores.std()}')
+            logger.info(f'mean: {winner_scores.mean()}')
+            logger.info(f' std: {winner_scores.std()}')
             if winner_scores.std() == 0.:
                 break
 
-        preds = predict(winners[-1], cls_model, reg_model, args.structure, True)
-        dataset_preds = predict(seq, cls_model, reg_model, args.structure, True)
+        preds = predict(winners[-1], cls_model, reg_model, args.structure, True, True)
+        dataset_preds = predict(seq, cls_model, reg_model, args.structure, True, True)
         res.append({
             'Sequence': winners[-1],
             'Residues': residues, 
