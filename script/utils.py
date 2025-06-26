@@ -146,7 +146,7 @@ def ml_encode(
         X = []
         for i in range(len(seq_list)):
             encoding = one_hot_encode_aa(seq_list[i])
-        X.append(encoding)
+            X.append(encoding)
         return np.array(X) if parital_residues is None else np.array(X)[:, parital_residues, :], np.array(y_list)
 
     if encode_strategy == 'feature':
