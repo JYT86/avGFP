@@ -66,10 +66,10 @@ python reg_train --structure
 The table below compares performance with and without structural information:
 |Performance | With Structure | Without Structure |
 |--------|--------|--------|
-|5% Acc| | |
-|NDCG (k=10)| | |
-|Spearmanr | | |
-|R²| | |
+|5% Acc| 0.753| 0.757|
+|NDCG (k=10)| 0.860| 0.847|
+|Spearmanr | 0.603| 0.647|
+|R²| 0.354| 0.341|
 
 ### Inference: Predict Variant Brightness
 
